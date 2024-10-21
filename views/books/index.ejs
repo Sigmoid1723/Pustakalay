@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Books</title>
+    </head>
+    <body>
+        <h1 href='/books'>Books</h1>
+        <ul>
+            <% files.forEach(file => { %>
+                <li>
+                    <a href="<%= baseUrl %>/<%= file.name %>"><%= file.name %></a>
+                </li>
+            <% }) %>
+        </ul>
+    </body>
+</html>
