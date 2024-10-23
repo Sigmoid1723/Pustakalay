@@ -2,7 +2,7 @@
 <br>
 <h2> Recently Visited </h2>
 <ul>
-    <% recentBooks.forEach( book => { %>
-        <li><a href="/books/<%= book.bookId %>"><%= book.bookId %></a> - Last Visited: <%= book.lastVisited %></li>
-    <% }) %>
+        <% books.forEach(book => { %>
+            <li><a href="<%= book.url %>"><%= book.url %></a></li>
+        <% }) %>
 </ul>

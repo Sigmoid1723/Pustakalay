@@ -1,10 +1,12 @@
 const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
 
-const recentBookSchema = new Schema({
-    bookId: { type: String, required: true },
-    filePath: {type: String, required: true},
-    lastVisited: { type: Date, default: Date.now }
+// Mongoose schema for recently visited PDFs
+const recentBookSchema = new mongoose.Schema({
+    url: {
+        type: String,
+        required: true,
+        unique: true
+    }
 });
 
-module.exports = mongoose.model('RecentBook', recentBookSchema);
+module.exports = mongoose.model('RecentlyVisited', recentBookSchema);

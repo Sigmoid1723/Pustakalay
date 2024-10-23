@@ -1,38 +1,42 @@
 const express = require('express');
 const path = require('path');
-const filterFiles = require('../filterFiles'); // Your custom filter function
-const RecentBook = require('../models/recentBook'); // Assuming this is your schema
+const filterFiles = require('../filterFiles');
 const router = express.Router();
+const RecentlyVisited = require('../models/recentBook')
 
 const directoryToServe = path.join(__dirname, '../public/books');
 
+// Use one route handler for both root and dynamic paths
 router.use('/*', (req, res, next) => {
     const subDir = req.params[0] || '';
+
     const directoryToFilter = path.join(directoryToServe, subDir);
 
-    // Apply the filterFiles function first
-    filterFiles(directoryToFilter)(req, res, async () => {
-        const fileList = req._files; // Assuming the filtered files are saved in `req._files`
-        const bookId = path.basename(req.url, path.extname(req.url)); // Extract bookId (file name without extension)
-        const filePath = path.join(directoryToFilter, `${bookId}.pdf`); // Assuming the book is a PDF
+    filterFiles(directoryToFilter)(req, res, next);
+}, async (req, res) => {
+    const fileList = req._files;
 
-        console.log(`Accessing book: ${bookId}`);
-
-        try {
-            // Update or create a new RecentBook entry using async/await
-            await RecentBook.findOneAndUpdate(
-                { bookId },
-                { bookId, filePath, lastVisited: Date.now() },
-                { upsert: true, new: true }
-            );
-            console.log('Recent book entry updated');
-        } catch (err) {
-            console.error('Error updating recent book:', err);
+    // Store only unique relative PDF file paths in Mongoose
+    const uniquePaths = new Set();
+    for (const file of fileList) {
+        const relativePath = file.path.replace(directoryToServe, '');
+        const url = `${req.baseUrl}`;
+        /* /${relativePath}`; */
+        if (!uniquePaths.has(url)) {
+            uniquePaths.add(url);
+            try {
+                const existingUrl = await RecentlyVisited.findOne({ url });
+                if (!existingUrl) {
+                    const newUrl = new RecentlyVisited({ url });
+                    await newUrl.save();
+                }
+            } catch (err) {
+                console.error('Error storing recently visited URL:', err);
+            }
         }
+    }
 
-        // After updating RecentBook, render the file list
-        res.render('books/index', { files: fileList, baseUrl: req.baseUrl });
-    });
+    res.render('books/index', { files: fileList, baseUrl: req.baseUrl });
 });
 
 module.exports = router;

@@ -1,14 +1,16 @@
-const express = require('express')
-const router = express.Router()
-const RecentBook = require('../models/recentBook')
+const express = require('express');
+const Book = require('../models/recentBook'); 
+const router = express.Router();
 
-router.get('/', async (req,res) => {
-    const recentBooks = await RecentBook.find({})
-                                        .populate('bookId')
-                                        .sort({lastVisited: -1})
-                                        .limit(5)
-    
-    res.render('index',{ recentBooks })
-})
+router.get('/', async (req, res) => {
+    try {
+        const books = await Book.find();
 
-module.exports = router
+        res.render('index', { books });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Error fetching PDF URLs');
+    }
+});
+
+module.exports = router;
