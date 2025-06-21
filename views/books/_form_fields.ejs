@@ -1,0 +1,91 @@
+<div class="form-row">
+    <div class="form-item">
+        <label>Title</label>
+        <input type="text" name="title" value="<%= book.title %>">
+    </div>
+    <div class="form-item">
+        <label>Author</label>
+        <select name="author">
+            <% authors.forEach(author => { %>
+                <% if(`${author.id}` === `${book.author}`) { %>
+                    <option selected label="<%= author.name %>" value="<%= author.id %>">
+                <% } else { %>
+                        <option label="<%= author.name %>" value="<%= author.id %>">
+                <% } %>
+            <% }) %>
+        </select>     
+    </div>
+</div>
+
+<div class="form-row">
+    <div class="form-item">
+        <label>Publish Date</label>
+        <input type="date" name="publishDate"
+               value="<%= book.publishDate == null ? '' :
+                      book.publishDate.toISOString().split('T')[0] %>">
+    </div>
+    <div class="form-item">
+        <label>Page Count</label>
+        <input type="number" name="pageCount" value="<%= book.pageCount %>" min="1">
+    </div>
+</div>
+
+<div class="form-row">
+    <div class="form-item form-item-no-grow">
+        <label>Cover</label>
+        <input type="file" name="cover" class="book-cover filepond">
+    </div>
+    <div class="form-item">
+        <label>Description</label>
+        <textarea name="description"><%= book.description%></textarea>
+    </div>
+</div>
+<script>
+ 
+ const rootStyles = window.getComputedStyle(document.documentElement)
+
+ if (rootStyles.getPropertyValue('--book-cover-width-large') != null && rootStyles.getPropertyValue('--book-cover-width-large') !== '') {
+     ready()
+ } else {
+     document.getElementById('main-css').addEventListener('load', ready)
+ }
+
+ function ready() {
+     const coverWidth = parseFloat(rootStyles.getPropertyValue('--book-cover-width-large'))
+     const coverAspectRatio = parseFloat(rootStyles.getPropertyValue('--book-cover-aspect-ratio'))
+     const coverHeight = coverWidth / coverAspectRatio
+     FilePond.registerPlugin(
+         FilePondPluginImagePreview,
+         FilePondPluginImageResize,
+         FilePondPluginFileEncode,
+     )
+
+     FilePond.setOptions({
+         stylePanelAspectRatio: 1 / coverAspectRatio,
+         imageResizeTargetWidth: coverWidth,
+         imageResizeTargetHeight: coverHeight,
+         credits: false
+     })
+     
+     FilePond.parse(document.body)
+ }
+ 
+ 
+ /* FilePond.registerPlugin(FilePondPluginImagePreview);
+
+  * FilePond.registerPlugin(FilePondPluginImageResize);
+
+  * FilePond.registerPlugin(FilePondPluginFileEncode);
+
+  * FilePond.setOptions({
+  *     stylePanelAspectRatio: 150 / 100,
+  *     imageResizeTargetWidth: 400,
+  *     imageResizeTargetHeight: 600,
+  *     credits: false
+  *    })
+
+  * const inputElement = document.querySelector('input[type="file"]');
+
+  * const pond = FilePond.create(inputElement); */
+
+</script>
